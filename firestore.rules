@@ -1,0 +1,53 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function linkPath() { return /databases/$(database)/documents/links/$(request.auth.uid); }
+    function linkedTo(parentUid, childId) {
+      return exists(linkPath())
+        && get(linkPath()).data.parentUid == parentUid
+        && get(linkPath()).data.childId == childId;
+    }
+
+    // Ota-ona va bolalari
+    match /users/{uid} {
+      allow read, write: if signedIn() && request.auth.uid == uid;
+
+      match /children/{childId} {
+        allow read, write: if signedIn() && request.auth.uid == uid;
+        allow read: if signedIn() && linkedTo(uid, childId);
+
+        match /sessions/{sid} {
+          allow read, delete: if signedIn() && request.auth.uid == uid;
+          allow create: if signedIn()
+            && linkedTo(uid, childId)
+            && request.resource.data.seconds is number
+            && request.resource.data.seconds <= 3600;
+        }
+      }
+    }
+
+    // Vaqtinchalik 8 xonali kodlar
+    match /pins/{code} {
+      allow get: if signedIn();
+      allow create: if signedIn()
+        && request.resource.data.parentUid == request.auth.uid
+        && !exists(/databases/$(database)/documents/pins/$(code));
+      allow delete: if signedIn();
+    }
+
+    // Bola qurilmasi va ota-ona bog'lanishi
+    match /links/{lid} {
+      allow create, update: if signedIn()
+        && request.auth.uid == lid
+        && request.resource.data.code is string
+        && exists(/databases/$(database)/documents/pins/$(request.resource.data.code))
+        && get(/databases/$(database)/documents/pins/$(request.resource.data.code)).data.parentUid == request.resource.data.parentUid
+        && get(/databases/$(database)/documents/pins/$(request.resource.data.code)).data.childId == request.resource.data.childId
+        && get(/databases/$(database)/documents/pins/$(request.resource.data.code)).data.expiresAt > request.time;
+      allow read, delete: if signedIn()
+        && (request.auth.uid == lid || resource.data.parentUid == request.auth.uid);
+    }
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "note": "Qidiruv natijalaridan olingan dastlabki ro'yxat. Videolar ochilishi, ilovada ko'rsatishga ruxsat berilishi (embed) va mazmuni hali tekshirilmagan.",
+  "videos": [
+    {"subject": "matematika", "title": "Matematika 2-sinf ochiq dars", "url": "https://www.youtube.com/watch?v=Gze82UjpNFk"},
+    {"subject": "matematika", "title": "3-sinf matematika 1-qism 1-dars (1 dan 100 gacha sonlar)", "url": "https://www.youtube.com/watch?v=H76-STMEUYE"},
+    {"subject": "matematika", "title": "5-sinf matematika, AHA matematika (1-qism)", "url": "https://www.youtube.com/watch?v=r0LjZ5MH_wI"},
+    {"subject": "matematika", "title": "Matematika boshlang'ich tushunchalari #6 (oddiy kasrlar)", "url": "https://www.youtube.com/watch?v=usNipv3XHmw"},
+    {"subject": "matematika", "title": "Matematika, boshlang'ich darajadan (HDP akademiya)", "url": "https://www.youtube.com/watch?v=xZqxVwckfgU"},
+    {"subject": "matematika", "title": "Kanal: Matematik Repetitor (barcha sinflar)", "url": "https://www.youtube.com/channel/UCULBpJbnX5e16m08lG5LNnQ", "type": "channel"},
+    {"subject": "matematika", "title": "Kanal: Matematika darslari (matemuz)", "url": "https://www.youtube.com/user/matemuz", "type": "channel"},
+    {"subject": "matematika", "title": "Kanal: Matematika video darslar (5-sinfdan)", "url": "https://www.youtube.com/c/matematikavideodarslar", "type": "channel"},
+
+    {"subject": "tarix", "title": "8-sinf O'zbekiston tarixi (to'liq dars)", "url": "https://www.youtube.com/watch?v=gum7pq13b8M"},
+    {"subject": "tarix", "title": "Ochiq dars. Tarix 8-sinf (Respublika ta'lim markazi)", "url": "https://www.youtube.com/watch?v=mFiTfXW0Gc8"},
+    {"subject": "tarix", "title": "Buxoro, Xiva va Qo'qon xonliklari (ochiq dars)", "url": "https://www.youtube.com/watch?v=pbH02x_N298"},
+    {"subject": "tarix", "title": "Tarix fanidan nazariy dars namunasi", "url": "https://www.youtube.com/watch?v=orFlbX69zDk"},
+    {"subject": "tarix", "title": "Salib yurishlari (video dars #6)", "url": "https://www.youtube.com/watch?v=xWWoAy830mc"},
+    {"subject": "tarix", "title": "Kanal: O'zbekiston tarixi (telekanal)", "url": "https://www.youtube.com/@ozbekistontarixitv", "type": "channel"},
+
+    {"subject": "adabiyot", "title": "9-sinf Adabiyot 1-dars: Kirish (Cho'lpon, Adabiyot nadir?)", "url": "https://www.youtube.com/watch?v=oYcWzExxc1k"},
+    {"subject": "adabiyot", "title": "Odil Yoqubov, 9-sinf adabiyot (audio kitob)", "url": "https://www.youtube.com/watch?v=o8YDFIeKk3c"},
+    {"subject": "adabiyot", "title": "Adabiyotga kirish (1-dars)", "url": "https://www.youtube.com/watch?v=wMrPNvRCu9I"},
+    {"subject": "adabiyot", "title": "Adabiyot fanidan ochiq dars (Dang'ara 22-maktab)", "url": "https://www.youtube.com/watch?v=lYuVuDh99WA"},
+    {"subject": "adabiyot", "title": "Ona tili va adabiyot fanidan ochiq dars", "url": "https://www.youtube.com/watch?v=Bgw0_GpzwOM"},
+    {"subject": "adabiyot", "title": "Kanal: Maktabgacha va maktab ta'limi vazirligi", "url": "https://www.youtube.com/channel/UCl7z3EkGaM4NA0NcB_phIAg", "type": "channel"},
+
+    {"subject": "ingliz tili", "title": "Sehrli ingliz tili, 1-son", "url": "https://www.youtube.com/watch?v=JA-6phKQCzU"},
+    {"subject": "ingliz tili", "title": "Sehrli ingliz tili (playlist)", "url": "https://www.youtube.com/playlist?list=PLsgKEOla-HpOm2hNDfXE-HQ1ZQxWADixd", "type": "playlist"},
+    {"subject": "ingliz tili", "title": "Bolalar uchun ingliz tili (playlist, 0 dan)", "url": "https://www.youtube.com/playlist?list=PLGTnqOZijLH1qtxn_z2NGieZzcCn4481c", "type": "playlist"},
+    {"subject": "ingliz tili", "title": "Bolalar uchun ingliz tili, 2-dars (D, E, H, N, P harflari)", "url": "https://www.youtube.com/watch?v=GVmaLZTPMIg"},
+    {"subject": "ingliz tili", "title": "Ingliz tili bolalar uchun: lesson one", "url": "https://www.youtube.com/watch?v=oWkzpAq8gOU"},
+    {"subject": "ingliz tili", "title": "Ingliz tili alifbosi bolalar uchun", "url": "https://www.youtube.com/watch?v=qHc-XZRvloo"},
+    {"subject": "ingliz tili", "title": "English for Kids (MasterOf)", "url": "https://www.youtube.com/watch?v=7tDA3cVTsNY"}
+  ]
+}
