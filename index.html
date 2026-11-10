@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#2563eb">
+<title>Kelajak - farzandlar qo'lida</title>
+<style>
+:root{--bg:#f3f6fb;--card:#fff;--ink:#16213a;--mut:#64708a;--pri:#2563eb;--ok:#16a34a;--bad:#dc2626;--line:#e3e9f4}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink);padding:0 0 40px}
+.wrap{max-width:560px;margin:0 auto;padding:16px}
+.hero{text-align:center;padding:40px 0 20px}
+.logo{font-size:64px}
+h1{margin:6px 0 0;font-size:34px;color:var(--pri)}
+h2{margin:0 0 12px;font-size:20px}
+h3{margin:0 0 6px;font-size:17px}
+.sub{color:var(--mut);margin:4px 0 0;font-size:17px}
+.card{background:var(--card);border-radius:18px;padding:16px;margin:14px 0;box-shadow:0 2px 10px rgba(20,40,90,.07)}
+button{font:inherit;border:0;border-radius:12px;padding:12px 16px;background:var(--pri);color:#fff;cursor:pointer;font-weight:600}
+button.big{display:block;width:100%;padding:18px;font-size:18px;margin:10px 0;border-radius:16px}
+button.alt{background:var(--ok)}
+button.ghost{background:#eaf0fd;color:var(--pri)}
+button.danger{background:#fde8e8;color:var(--bad)}
+button.sm{padding:8px 12px;font-size:14px;border-radius:10px}
+button:disabled{opacity:.5}
+label{display:block;font-size:14px;color:var(--mut);margin:12px 0 4px}
+input,select{width:100%;font:inherit;padding:12px;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink)}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px}
+.muted{color:var(--mut);font-size:14px}
+.pin{font-size:44px;letter-spacing:4px;text-align:center;font-weight:800;color:var(--pri);margin:18px 0 8px;font-variant-numeric:tabular-nums}
+.bar{height:10px;background:var(--line);border-radius:8px;overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--pri);width:100%}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:4px 0 10px}
+.chip{white-space:nowrap;background:#fff;color:var(--ink);border:1px solid var(--line);padding:10px 14px;border-radius:999px}
+.chip.on{background:var(--pri);color:#fff;border-color:var(--pri)}
+.vgrid{display:grid;gap:12px}
+.v{background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 10px rgba(20,40,90,.07);cursor:pointer}
+.v img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;background:#dbe3f3}
+.v div{padding:10px 12px;font-weight:600}
+.v small{display:block;color:var(--mut);font-weight:400;margin-top:2px}
+.modal{position:fixed;inset:0;background:rgba(10,15,30,.85);z-index:10;display:flex;flex-direction:column;justify-content:center;padding:12px}
+.modal .box{max-width:700px;width:100%;margin:0 auto}
+.modal .ytwrap{position:relative;padding-top:56.25%;background:#000;border-radius:12px;overflow:hidden}
+.modal .ytwrap>*{position:absolute;inset:0;width:100%;height:100%}
+.modal button{margin-top:12px;width:100%}
+.stat{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line)}
+.int{margin:8px 0}
+.int .l{display:flex;justify-content:space-between;font-size:14px;margin-bottom:3px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#16213a;color:#fff;padding:12px 18px;border-radius:12px;z-index:20;max-width:90%;text-align:center}
+.err{color:var(--bad);font-size:14px;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signInAnonymously, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, addDoc, collection, getDocs, deleteDoc, onSnapshot, writeBatch, query, where, Timestamp, serverTimestamp } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBVw8dr1ireKm-kcsMGoEe0z5Y-pl47nrs",
+  authDomain: "kelajak-cdf7d.firebaseapp.com",
+  projectId: "kelajak-cdf7d",
+  storageBucket: "kelajak-cdf7d.firebasestorage.app",
+  messagingSenderId: "257248184111",
+  appId: "1:257248184111:web:eb4a7e362ac3734c8103da"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const root = document.getElementById('app');
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const SUBJ = { matematika:'Matematika', tarix:'Tarix', adabiyot:'Adabiyot', ingliz:'Ingliz tili' };
+const ICON = { matematika:'➗', tarix:'🏛️', adabiyot:'📖', ingliz:'🔤' };
+
+// Videolar ro'yxati (keyin admin orqali boshqariladigan qilamiz)
+const VIDEOS = [
+  {id:'Gze82UjpNFk', s:'matematika', t:'Matematika 2-sinf (ochiq dars)'},
+  {id:'H76-STMEUYE', s:'matematika', t:'3-sinf matematika: 1 dan 100 gacha sonlar'},
+  {id:'r0LjZ5MH_wI', s:'matematika', t:'5-sinf matematika (AHA matematika)'},
+  {id:'usNipv3XHmw', s:'matematika', t:'Oddiy kasrlarning asosiy xossalari'},
+  {id:'xZqxVwckfgU', s:'matematika', t:'Matematikani boshlang\'ich darajadan'},
+  {id:'gum7pq13b8M', s:'tarix', t:'8-sinf O\'zbekiston tarixi'},
+  {id:'mFiTfXW0Gc8', s:'tarix', t:'Tarix 8-sinf (ochiq dars)'},
+  {id:'pbH02x_N298', s:'tarix', t:'Buxoro, Xiva va Qo\'qon xonliklari'},
+  {id:'orFlbX69zDk', s:'tarix', t:'Tarix fanidan nazariy dars'},
+  {id:'xWWoAy830mc', s:'tarix', t:'Salib yurishlari'},
+  {id:'oYcWzExxc1k', s:'adabiyot', t:'9-sinf Adabiyot: Kirish (Cho\'lpon)'},
+  {id:'o8YDFIeKk3c', s:'adabiyot', t:'Odil Yoqubov (audio kitob)'},
+  {id:'wMrPNvRCu9I', s:'adabiyot', t:'Adabiyotga kirish'},
+  {id:'lYuVuDh99WA', s:'adabiyot', t:'Adabiyot (ochiq dars)'},
+  {id:'Bgw0_GpzwOM', s:'adabiyot', t:'Ona tili va adabiyot (ochiq dars)'},
+  {id:'JA-6phKQCzU', s:'ingliz', t:'Sehrli ingliz tili, 1-son'},
+  {id:'GVmaLZTPMIg', s:'ingliz', t:'Bolalar uchun ingliz tili: D, E, H, N, P'},
+  {id:'oWkzpAq8gOU', s:'ingliz', t:'Bolalar uchun ingliz tili: lesson one'},
+  {id:'qHc-XZRvloo', s:'ingliz', t:'Ingliz tili alifbosi'},
+  {id:'7tDA3cVTsNY', s:'ingliz', t:'English for Kids'}
+];
+
+const S = { user:null, profile:null, children:[], busy:false, screen:'', filter:'all', child:null };
+const show = h => { root.innerHTML = h; window.scrollTo(0,0); };
+function toast(m){ const d=document.createElement('div'); d.className='toast'; d.textContent=m; document.body.appendChild(d); setTimeout(()=>d.remove(),3500); }
+const val = id => (document.getElementById(id)?.value ?? '').trim();
+const errMsg = e => e?.code==='permission-denied' ? 'Ruxsat yo\'q. Firestore qoidalari to\'g\'ri qo\'yilganini tekshiring.' : (e?.message || 'Xatolik');
+const fmtMin = s => s < 60 ? `${s} soniya` : `${Math.round(s/60)} daqiqa`;
+
+// ---------- Yo'naltirish ----------
+onAuthStateChanged(auth, async u => { S.user = u; if (S.busy) return; await route(); });
+async function route(){
+  const u = S.user;
+  if (u && !u.isAnonymous) return parentHome();
+  if (u && u.isAnonymous && localStorage.getItem('kl_link')) return childHome();
+  if (S.screen === 'pin') return;
+  startScreen();
+}
+
+function startScreen(){
+  S.screen = 'start';
+  show(`<div class="hero"><div class="logo">🌟</div><h1>Kelajak</h1><p class="sub">farzandlar qo'lida</p></div>
+  <div class="card">
+    <button class="big" onclick="A.parent()">👨‍👩‍👧 Ota-ona uchun</button>
+    <button class="big alt" onclick="A.childPin()">🧒 Bola uchun</button>
+  </div>`);
+}
+
+// ---------- Ota-ona ----------
+async function parentHome(){
+  S.screen = 'parent';
+  const u = S.user;
+  try {
+    if (!S.profile) {
+      const s = await getDoc(doc(db,'users',u.uid));
+      S.profile = s.exists() ? s.data() : null;
+    }
+    if (!S.profile) return profileForm();
+    await loadChildren();
+    renderParent();
+  } catch(e){ toast(errMsg(e)); }
+}
+async function loadChildren(){
+  const q = await getDocs(collection(db,'users',S.user.uid,'children'));
+  S.children = q.docs.map(d => ({ id:d.id, ...d.data() }));
+}
+function maxChildren(){ return S.profile?.tier === '6-15' ? 15 : 5; }
+
+function profileForm(){
+  const g = S.user.displayName || '';
+  const [fn, ...ln] = g.split(' ');
+  show(`<div class="top"><h2>Ro'yxatdan o'tish</h2><button class="ghost sm" onclick="A.logout()">Chiqish</button></div>
+  <div class="card">
+    <label>Ismingiz</label><input id="fn" value="${esc(fn||'')}">
+    <label>Familiyangiz</label><input id="ln" value="${esc(ln.join(' '))}">
+    <label>Tug'ilgan yilingiz</label><input id="by" type="number" inputmode="numeric" placeholder="1990">
+    <label>Telefon raqamingiz</label><input id="ph" type="tel" placeholder="+998 90 123 45 67">
+    <label>Nechta bola qo'shmoqchisiz?</label>
+    <select id="tier"><option value="1-5">1 dan 5 tagacha (bepul)</option><option value="6-15">6 dan 15 tagacha (bepul)</option><option value="15+" disabled>15 tadan ko'p (pullik, tez orada)</option></select>
+    <div class="err" id="e"></div>
+    <button class="big" onclick="A.saveProfile()">Saqlash</button>
+  </div>`);
+}
+
+function renderParent(){
+  const p = S.profile;
+  const list = S.children.map(c => `<div class="card">
+    <h3>🧒 ${esc(c.name)}</h3>
+    <div class="muted">${esc(c.grade)}-sinf · ${esc(c.age)} yosh</div>
+    <div class="row">
+      <button class="sm" onclick="A.pin('${c.id}')">🔑 Kirish kodi</button>
+      <button class="sm ghost" onclick="A.stats('${c.id}')">📊 Natijalar</button>
+      <button class="sm ghost" onclick="A.childForm('${c.id}')">✏️ Tahrirlash</button>
+      <button class="sm danger" onclick="A.unlink('${c.id}')">Qurilmalarni uzish</button>
+    </div></div>`).join('');
+  show(`<div class="top"><div><h2>Salom, ${esc(p.firstName)}!</h2><div class="muted">Bolalar: ${S.children.length} / ${maxChildren()}</div></div><button class="ghost sm" onclick="A.logout()">Chiqish</button></div>
+  ${list || '<div class="card muted">Hali bola qo\'shilmagan.</div>'}
+  <button class="big" onclick="A.childForm()">➕ Bola qo'shish</button>`);
+}
+
+// ---------- Bola qo'shish / tahrirlash ----------
+window.__editId = null;
+function childForm(id){
+  const c = S.children.find(x => x.id === id) || { name:'', grade:'1', age:'' };
+  window.__editId = id || null;
+  if (!id && S.children.length >= maxChildren()) return toast('Bolalar soni chegarasiga yetdingiz.');
+  const opts = Array.from({length:11}, (_,i) => `<option value="${i+1}" ${String(c.grade)===String(i+1)?'selected':''}>${i+1}-sinf</option>`).join('');
+  show(`<div class="top"><h2>${id?'Bolani tahrirlash':'Yangi bola'}</h2><button class="ghost sm" onclick="A.home()">Orqaga</button></div>
+  <div class="card">
+    <label>Bolaning ismi (laqabi)</label><input id="cn" value="${esc(c.name)}" maxlength="30">
+    <label>Sinfi</label><select id="cg">${opts}</select>
+    <label>Yoshi</label><input id="ca" type="number" inputmode="numeric" value="${esc(c.age)}">
+    <div class="muted" style="margin-top:8px">Faqat sinfni siz tanlaysiz. Fanni bolaning o'zi tanlaydi.</div>
+    <div class="err" id="e"></div>
+    <button class="big" onclick="A.saveChild()">Saqlash</button>
+  </div>`);
+}
+
+// ---------- 8 xonali kirish kodi ----------
+const P = { on:false, code:null, unsub:null, timer:null, tick:null, t0:0, childId:null };
+const genCode = () => String(crypto.getRandomValues(new Uint32Array(1))[0] % 100000000).padStart(8,'0');
+async function pinScreenParent(childId){
+  const c = S.children.find(x => x.id === childId);
+  P.on = true; P.childId = childId;
+  show(`<div class="top"><h2>${esc(c.name)} uchun kod</h2><button class="ghost sm" onclick="A.home()">Orqaga</button></div>
+  <div class="card">
+    <div class="muted">Bolaning telefonida "Bola uchun" tugmasini bosing va shu kodni kiriting. Kod 15 soniyada almashadi.</div>
+    <div class="pin" id="pin">········</div>
+    <div class="bar"><i id="bar"></i></div>
+    <div class="muted" id="pinmsg" style="margin-top:10px;text-align:center"></div>
+  </div>`);
+  await newPin();
+}
+async function newPin(){
+  if (!P.on) return;
+  const code = genCode();
+  try {
+    await setDoc(doc(db,'pins',code), { parentUid:S.user.uid, childId:P.childId, expiresAt:Timestamp.fromMillis(Date.now()+20000) });
+  } catch(e){ toast(errMsg(e)); return; }
+  if (!P.on) { deleteDoc(doc(db,'pins',code)).catch(()=>{}); return; }
+  P.code = code; P.t0 = Date.now();
+  const el = document.getElementById('pin'); if (el) el.textContent = code.slice(0,4)+' '+code.slice(4);
+  P.unsub = onSnapshot(doc(db,'pins',code), s => { if (!s.exists() && P.code === code) rotate(true); });
+  clearTimeout(P.timer); P.timer = setTimeout(() => rotate(false), 15000);
+  clearInterval(P.tick);
+  P.tick = setInterval(() => { const b=document.getElementById('bar'); if(b) b.style.width = Math.max(0, 100 - (Date.now()-P.t0)/150) + '%'; }, 150);
+}
+async function rotate(consumed){
+  const old = P.code; P.code = null;
+  if (P.unsub) { P.unsub(); P.unsub = null; }
+  clearTimeout(P.timer);
+  if (consumed) { const m=document.getElementById('pinmsg'); if(m) m.textContent='✅ Qurilma ulandi. Yangi kod:'; }
+  else if (old) deleteDoc(doc(db,'pins',old)).catch(()=>{});
+  await newPin();
+}
+function stopPin(){
+  P.on = false; clearTimeout(P.timer); clearInterval(P.tick);
+  if (P.unsub) { P.unsub(); P.unsub = null; }
+  if (P.code) deleteDoc(doc(db,'pins',P.code)).catch(()=>{});
+  P.code = null;
+}
+
+// ---------- Natijalar ----------
+async function statsScreen(childId){
+  const c = S.children.find(x => x.id === childId);
+  show(`<div class="top"><h2>${esc(c.name)}: natijalar</h2><button class="ghost sm" onclick="A.home()">Orqaga</button></div><div class="card muted">Yuklanmoqda...</div>`);
+  try {
+    const q = await getDocs(collection(db,'users',S.user.uid,'children',childId,'sessions'));
+    const rows = q.docs.map(d => d.data());
+    const total = rows.reduce((a,r)=>a+(r.seconds||0),0);
+    const today = new Date(); today.setHours(0,0,0,0);
+    const todaySec = rows.filter(r => r.ts && r.ts.toDate() >= today).reduce((a,r)=>a+r.seconds,0);
+    const vids = new Set(rows.map(r => r.videoId));
+    const by = {}; rows.forEach(r => by[r.subject] = (by[r.subject]||0) + r.seconds);
+    const bars = Object.keys(SUBJ).map(k => { const s=by[k]||0, pc = total? Math.round(s*100/total):0;
+      return `<div class="int"><div class="l"><span>${ICON[k]} ${SUBJ[k]}</span><span>${fmtMin(s)} (${pc}%)</span></div><div class="bar"><i style="width:${pc}%"></i></div></div>`; }).join('');
+    const last = rows.filter(r=>r.ts).sort((a,b)=>b.ts.toMillis()-a.ts.toMillis()).slice(0,8).map(r =>
+      `<div class="stat"><span>${esc(r.title)}</span><span class="muted">${fmtMin(r.seconds)}</span></div>`).join('');
+    show(`<div class="top"><h2>${esc(c.name)}: natijalar</h2><button class="ghost sm" onclick="A.home()">Orqaga</button></div>
+    <div class="card">
+      <div class="stat"><span>Bugun</span><b>${fmtMin(todaySec)}</b></div>
+      <div class="stat"><span>Jami vaqt</span><b>${fmtMin(total)}</b></div>
+      <div class="stat"><span>Ko'rilgan videolar</span><b>${vids.size}</b></div>
+    </div>
+    <div class="card"><h3>Qiziqish (fanlar bo'yicha)</h3>${bars}</div>
+    <div class="card"><h3>Oxirgi ko'rilganlar</h3>${last || '<div class="muted">Hali video ko\'rilmagan.</div>'}</div>`);
+  } catch(e){ toast(errMsg(e)); }
+}
+
+// ---------- Bola ----------
+function pinScreenChild(msg){
+  S.screen = 'pin';
+  show(`<div class="top"><h2>Bola uchun kirish</h2><button class="ghost sm" onclick="A.start()">Orqaga</button></div>
+  <div class="card">
+    <div class="muted">Ota-onangizning telefonidagi 8 xonali kodni kiriting.</div>
+    <label>Kod</label><input id="code" inputmode="numeric" maxlength="9" placeholder="1234 5678" style="font-size:26px;text-align:center;letter-spacing:3px">
+    <div class="err" id="e">${esc(msg||'')}</div>
+    <button class="big alt" onclick="A.submitPin()">Kirish</button>
+  </div>`);
+}
+async function submitPin(){
+  const code = val('code').replace(/\D/g,'');
+  if (code.length !== 8) return document.getElementById('e').textContent = 'Kod 8 ta raqamdan iborat.';
+  S.busy = true;
+  try {
+    if (!auth.currentUser || !auth.currentUser.isAnonymous) { if (auth.currentUser) await signOut(auth); await signInAnonymously(auth); }
+    const p = await getDoc(doc(db,'pins',code));
+    if (!p.exists() || p.data().expiresAt.toMillis() < Date.now() - 5000) { S.busy=false; return pinScreenChild('Kod noto\'g\'ri yoki eskirgan. Yangi kodni kiriting.'); }
+    const d = p.data(), uid = auth.currentUser.uid;
+    const b = writeBatch(db);
+    b.set(doc(db,'links',uid), { code, parentUid:d.parentUid, childId:d.childId, createdAt:serverTimestamp() });
+    b.delete(doc(db,'pins',code));
+    await b.commit();
+    localStorage.setItem('kl_link', JSON.stringify({ parentUid:d.parentUid, childId:d.childId }));
+    S.busy = false; await childHome();
+  } catch(e){ S.busy=false; pinScreenChild(errMsg(e)); }
+}
+async function childHome(){
+  S.screen = 'child';
+  const link = JSON.parse(localStorage.getItem('kl_link') || 'null');
+  if (!link) return startScreen();
+  try {
+    if (!S.child) { const s = await getDoc(doc(db,'users',link.parentUid,'children',link.childId)); S.child = s.exists() ? s.data() : { name:'' }; }
+  } catch(e){ S.child = { name:'' }; }
+  renderChild();
+}
+function renderChild(){
+  const chips = [['all','Hammasi'], ...Object.entries(SUBJ)].map(([k,l]) => `<button class="chip ${S.filter===k?'on':''}" onclick="A.filter('${k}')">${k==='all'?'':ICON[k]+' '}${l}</button>`).join('');
+  const list = VIDEOS.filter(v => S.filter==='all' || v.s===S.filter).map(v => `<div class="v" onclick="A.play('${v.id}')">
+    <img loading="lazy" src="https://i.ytimg.com/vi/${v.id}/hqdefault.jpg" alt=""><div>${esc(v.t)}<small>${ICON[v.s]} ${SUBJ[v.s]}</small></div></div>`).join('');
+  show(`<div class="top"><h2>Salom, ${esc(S.child?.name||'')}! 👋</h2><button class="ghost sm" onclick="A.leave()">Chiqish</button></div>
+  <div class="chips">${chips}</div><div class="vgrid">${list}</div>`);
+}
+
+// ---------- Video ko'rish vaqtini yozish ----------
+const W = { player:null, vid:null, acc:0, last:null, timer:null };
+function loadYT(){ return new Promise(res => { if (window.YT && YT.Player) return res(); window.onYouTubeIframeAPIReady = res; const s=document.createElement('script'); s.src='https://www.youtube.com/iframe_api'; document.head.appendChild(s); }); }
+async function playVideo(id){
+  const v = VIDEOS.find(x => x.id === id); if (!v) return;
+  const m = document.createElement('div'); m.className='modal'; m.id='modal';
+  m.innerHTML = `<div class="box"><div class="ytwrap"><div id="yt"></div></div><button onclick="A.closeVideo()">Yopish</button></div>`;
+  document.body.appendChild(m);
+  W.vid = v; W.acc = 0; W.last = null;
+  await loadYT();
+  W.player = new YT.Player('yt', { videoId:id, playerVars:{ rel:0, modestbranding:1, playsinline:1 }, events:{
+    onReady: e => e.target.playVideo(),
+    onStateChange: e => {
+      if (e.data === 1) { if (!W.last) W.last = Date.now(); }
+      else { pauseAcc(); if (e.data === 0 || e.data === 2) flush(); }
+    } } });
+  clearInterval(W.timer); W.timer = setInterval(() => { if (W.last) { pauseAcc(); W.last = Date.now(); } if (W.acc >= 30000) flush(); }, 5000);
+}
+function pauseAcc(){ if (W.last) { W.acc += Date.now() - W.last; W.last = null; } }
+async function flush(){
+  pauseAcc();
+  const sec = Math.round(W.acc/1000); W.acc = 0;
+  const link = JSON.parse(localStorage.getItem('kl_link') || 'null');
+  if (sec < 3 || !W.vid || !link) return;
+  try { await addDoc(collection(db,'users',link.parentUid,'children',link.childId,'sessions'), { videoId:W.vid.id, title:W.vid.t, subject:W.vid.s, seconds:Math.min(sec,3600), ts:serverTimestamp() }); } catch(e){}
+}
+async function closeVideo(){
+  clearInterval(W.timer); await flush();
+  try { W.player?.destroy(); } catch(e){}
+  W.player = null; document.getElementById('modal')?.remove();
+}
+document.addEventListener('visibilitychange', () => { if (document.hidden && W.vid) { pauseAcc(); flush(); } });
+
+// ---------- Tugmalar ----------
+window.A = {
+  start(){ stopPin(); S.screen=''; startScreen(); },
+  async parent(){
+    try { S.busy = true; if (auth.currentUser?.isAnonymous) await signOut(auth); S.busy = false;
+      await signInWithPopup(auth, new GoogleAuthProvider()); } catch(e){ S.busy=false; toast('Kirish bekor qilindi yoki xato: ' + (e.code||e.message)); }
+  },
+  childPin(){ pinScreenChild(); },
+  submitPin,
+  async logout(){ stopPin(); S.profile=null; S.children=[]; S.screen=''; await signOut(auth); startScreen(); },
+  async saveProfile(){
+    const by = parseInt(val('by')), e = document.getElementById('e');
+    if (!val('fn') || !val('ln') || !(by>1900 && by<2015) || val('ph').replace(/\D/g,'').length < 9) return e.textContent = 'Barcha maydonlarni to\'g\'ri to\'ldiring.';
+    const p = { firstName:val('fn'), lastName:val('ln'), birthYear:by, phone:val('ph'), tier:val('tier'), email:S.user.email||'', createdAt:serverTimestamp() };
+    try { await setDoc(doc(db,'users',S.user.uid), p); S.profile = p; await loadChildren(); renderParent(); } catch(er){ e.textContent = errMsg(er); }
+  },
+  home(){ stopPin(); parentHome(); },
+  childForm,
+  async saveChild(){
+    const age = parseInt(val('ca')), e = document.getElementById('e');
+    if (!val('cn') || !(age>=3 && age<=20)) return e.textContent = 'Ism va yoshni to\'g\'ri kiriting (3-20 yosh).';
+    const data = { name:val('cn'), grade:parseInt(val('cg')), age };
+    try {
+      if (window.__editId) await setDoc(doc(db,'users',S.user.uid,'children',window.__editId), data, { merge:true });
+      else await addDoc(collection(db,'users',S.user.uid,'children'), { ...data, createdAt:serverTimestamp() });
+      await loadChildren(); renderParent();
+    } catch(er){ e.textContent = errMsg(er); }
+  },
+  pin: pinScreenParent,
+  stats: statsScreen,
+  async unlink(childId){
+    if (!confirm('Bu bolaga ulangan barcha qurilmalar uziladi. Davom etasizmi?')) return;
+    try {
+      const q = await getDocs(query(collection(db,'links'), where('parentUid','==',S.user.uid), where('childId','==',childId)));
+      await Promise.all(q.docs.map(d => deleteDoc(d.ref)));
+      toast('Qurilmalar uzildi.');
+    } catch(e){ toast(errMsg(e)); }
+  },
+  filter(k){ S.filter = k; renderChild(); },
+  play: playVideo,
+  closeVideo,
+  async leave(){
+    if (!confirm('Chiqsangizmi? Qayta kirish uchun ota-onangiz yangi kod berishi kerak.')) return;
+    const link = auth.currentUser;
+    localStorage.removeItem('kl_link'); S.child = null;
+    try { if (link) await deleteDoc(doc(db,'links',link.uid)); } catch(e){}
+    await signOut(auth); S.screen=''; startScreen();
+  }
+};
+</script>
+</body>
+</html>
